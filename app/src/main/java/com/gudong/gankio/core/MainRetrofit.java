@@ -21,13 +21,14 @@ package com.gudong.gankio.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
 
-import retrofit.RestAdapter;
-import retrofit.client.OkClient;
-import retrofit.converter.GsonConverter;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
 
 /**
  * Created by GuDong on 15/10/8.
@@ -40,18 +41,21 @@ public class MainRetrofit {
     final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").serializeNulls().create();
 
     MainRetrofit() {
-        OkHttpClient client = new OkHttpClient();
-        client.setReadTimeout(21, TimeUnit.SECONDS);
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setClient(new OkClient(client))
-                .setEndpoint(MainFactory.HOST)
-                .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.FULL)
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+        clientBuilder.readTimeout(21, TimeUnit.SECONDS);
+        clientBuilder.addInterceptor(loggingInterceptor);
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(clientBuilder.build())
+                .baseUrl(MainFactory.HOST)
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
-        mService = restAdapter.create(GuDong.class);
+        mService = retrofit.create(GuDong.class);
     }
 
-    public GuDong getService(){
+    public GuDong getService() {
         return mService;
     }
 }

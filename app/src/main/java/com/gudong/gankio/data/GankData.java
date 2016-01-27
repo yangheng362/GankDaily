@@ -19,8 +19,8 @@
 
 package com.gudong.gankio.data;
 
-import com.gudong.gankio.data.entity.Gank;
 import com.google.gson.annotations.SerializedName;
+import com.gudong.gankio.data.entity.Gank;
 
 import java.util.List;
 
